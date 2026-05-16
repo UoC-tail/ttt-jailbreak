@@ -35,3 +35,4 @@ wheels/
 # Local overrides
 *.local
 cluster_test_prompt.md
+refactor_regression_report.md

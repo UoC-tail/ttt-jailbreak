@@ -19,3 +19,7 @@ output_dir: "${path:${hydra:runtime.cwd}/${results_dir_name}/${hydra:runtime.cho
 max_prompt_length: 2048
 start_idx: 0
 num_problems: null
+
+# Source macro category for experiments/cross_category_experiment.py.
+# Ignored by scripts/jailbreak.py.
+source_category: null

@@ -56,6 +56,18 @@ def main(cfg: DictConfig):
             f"Choose one of {sorted(SUPPORTED_FINETUNE_MODES)}."
         )
 
+    # Defense + Tinker is unsupported. Detect by backend _target_ rather than
+    # by instantiating the backend, so we fail before any Tinker ServiceClient
+    # is constructed (and before any HF model is loaded).
+    defense_cfg = cfg.get("defense")
+    if defense_cfg and defense_cfg.get("enabled", False):
+        backend_target = cfg.backend.get("_target_", "")
+        if "TinkerBackend" in backend_target:
+            raise RuntimeError(
+                f"Defense (perplexity monitoring) requested but backend "
+                f"{backend_target} does not support perplexity()."
+            )
+
     output_dir = hydra.utils.to_absolute_path(cfg.output_dir)
     os.makedirs(output_dir, exist_ok=True)
     log.info(f"Output directory set to: {output_dir}")
@@ -77,7 +89,6 @@ def main(cfg: DictConfig):
         f"Processing {len(problems)} problems (indices {cfg.start_idx} to {end_idx - 1})"
     )
 
-    defense_cfg = cfg.get("defense")
     defense = None
     if defense_cfg and defense_cfg.get("enabled", False):
         defense = DefenseMonitor(backend, defense_cfg, cfg.data)
